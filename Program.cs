@@ -46,6 +46,21 @@ namespace MyApp // Note: actual namespace depends on the project name.
             ConcreteDecoratorA decorator1 = new ConcreteDecoratorA(simple);
             System.Console.WriteLine("Client Now I've got a decorated component:");
             client.ClientCode(decorator1);
+
+            // solving the discount problmen
+            IOrder baseOrder = new BaseOrder(100);
+
+            // 10% discount
+            IOrder orderWithPercentageDiscount = new PercentageDiscount(baseOrder, 10);
+            System.Console.WriteLine("Total after applying 10% discount: $" + orderWithPercentageDiscount.CalculateTotal());
+
+            IOrder orderWithFixedAmountDiscount = new FixedAmountDiscount(baseOrder, 20);
+            System.Console.WriteLine("Total after applying $20 discount: $", orderWithFixedAmountDiscount.CalculateTotal());
+
+            //Applying multiple discounts
+            IOrder orderWithMultipleDiscounts = new PercentageDiscount(new FixedAmountDiscount(baseOrder, 20), 15);
+            System.Console.WriteLine("Total after applying $20 fixed amount discount and 15% percentage discount: $" + orderWithMultipleDiscounts.CalculateTotal());
+
         }
 
     }
@@ -145,6 +160,76 @@ namespace MyApp // Note: actual namespace depends on the project name.
         public override string GetDescription()
         {
             return beverage.GetDescription() + ", Whip";
+        }
+    }
+
+    // You are developing a software application for a restaurant management system.
+    // In this system, you need to implement varous types of discounts that can be applied to orders.
+    // These discounts may include percentage discounts, fixed amount discounts, or any custom
+    // based discounts. However, you want to ensure that adding new types of discounts or 
+    // modifying existing ones doesn't heavily impact the core codebase.
+
+    interface IOrder
+    {
+        double CalculateTotal();
+    }
+
+    // concrete implementation of an order
+    class BaseOrder : IOrder
+    {
+        private double _total;
+        public BaseOrder(double total)
+        {
+            this._total = total;
+        }
+        public double CalculateTotal()
+        {
+            return _total;
+        }
+    }
+
+    abstract class OrderDecorator : IOrder
+    {
+        protected IOrder _order;
+        public OrderDecorator(IOrder order)
+        {
+            _order = order;
+        }
+
+        public abstract double CalculateTotal();
+    }
+
+    // concrete decorator class for applying percentage discount
+
+    class PercentageDiscount : OrderDecorator
+    {
+        private double _discountPercentage;
+        public PercentageDiscount(IOrder order, double discountPercentage) : base(order)
+        {
+            _discountPercentage = discountPercentage;
+        }
+
+        public override double CalculateTotal()
+        {
+            double originalTotal = _order.CalculateTotal();
+            double discountPercentage = originalTotal * (_discountPercentage / 100);
+            return originalTotal - discountPercentage;
+        }
+    }
+
+    class FixedAmountDiscount : OrderDecorator
+    {
+        private double _discountAmount;
+
+        public FixedAmountDiscount(IOrder order, double discountAmount) : base(order)
+        {
+            _discountAmount = discountAmount;
+        }
+
+        public override double CalculateTotal()
+        {
+            double originalTotal = _order.CalculateTotal();
+            return originalTotal - _discountAmount;
         }
     }
 
