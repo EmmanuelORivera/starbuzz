@@ -1,4 +1,5 @@
 ﻿using System;
+using AnotherDecoratorPatternExample;
 // Decorator pattern
 namespace MyApp // Note: actual namespace depends on the project name.
 {
@@ -29,7 +30,24 @@ namespace MyApp // Note: actual namespace depends on the project name.
             beverage3 = new Whip(beverage3);
 
             System.Console.WriteLine(beverage3.GetDescription() + " $ " + beverage3.Cost());
+
+
+            // This is another example of decorator pattern
+            Client client = new Client();
+            var simple = new ConcreteComponent();
+            System.Console.WriteLine("Client: I get a simple component:");
+            client.ClientCode(simple);
+            System.Console.WriteLine();
+
+            // ...as well as decorated ones.
+
+            // Note how decorators can wrap not only simple components but the other decorators
+            // as well
+            ConcreteDecoratorA decorator1 = new ConcreteDecoratorA(simple);
+            System.Console.WriteLine("Client Now I've got a decorated component:");
+            client.ClientCode(decorator1);
         }
+
     }
 
     public abstract class Beverage
